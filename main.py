@@ -18,6 +18,10 @@ def cleanup_files(files):
         if os.path.exists(file):
             os.remove(file)
 
+@app.get("/")
+def home():
+    return {"message": "FastAPI is running on Render!"}
+
 @app.post("/remove-bg")
 async def remove_bg(file: UploadFile = File(...), background_tasks: BackgroundTasks = BackgroundTasks()):
     file_path = os.path.join(UPLOAD_DIR, file.filename)
