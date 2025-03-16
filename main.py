@@ -4,6 +4,8 @@ import shutil
 import os
 from rembg import remove
 from PIL import Image
+import uvicorn
+
 
 app = FastAPI()
 
@@ -42,3 +44,8 @@ async def remove_bg(file: UploadFile = File(...), background_tasks: BackgroundTa
         if os.path.exists(file_path):
             os.remove(file_path)
         raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
+
+# Run Uvicorn when executed directly (Render requires this)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))  # Default to 8000 if PORT is not set
+    uvicorn.run(app, host="0.0.0.0", port=port)
