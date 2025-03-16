@@ -2,10 +2,9 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
 from fastapi.responses import FileResponse
 import shutil
 import os
+import gc  # ✅ Garbage collection to free memory
 from rembg import remove
 from PIL import Image
-import uvicorn
-
 
 app = FastAPI()
 
@@ -28,28 +27,34 @@ async def remove_bg(file: UploadFile = File(...), background_tasks: BackgroundTa
     output_path = os.path.join(UPLOAD_DIR, f"processed_{file.filename}")
 
     try:
-        # Save uploaded file
+        # ✅ Save uploaded file
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # Process the image to remove background
+        # ✅ Open and Resize Large Images (Reduces RAM Usage)
         with Image.open(file_path) as input_image:
-            output_image = remove(input_image)  # Remove background
-            output_image.save(output_path, "PNG")  # Save as PNG with transparency
+            if max(input_image.size) > 1024:  # Resize large images
+                input_image.thumbnail((1024, 1024))
+            
+            # ✅ Remove Background (Only process smaller images to save RAM)
+            output_image = remove(input_image)
+            output_image.save(output_path, "PNG")
 
-        # Add cleanup task after response is sent
+        # ✅ Free up memory immediately
+        gc.collect()
+
+        # ✅ Cleanup temp files after response
         background_tasks.add_task(cleanup_files, [file_path, output_path])
 
-        # Return the processed image
         return FileResponse(output_path, media_type="image/png")
 
     except Exception as e:
-        # Delete the uploaded file if an error occurs
         if os.path.exists(file_path):
             os.remove(file_path)
         raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
 
-# Run Uvicorn when executed directly (Render requires this)
+# ✅ Ensure Render uses the correct port
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))  # Default to 8000 if PORT is not set
+    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=port)
