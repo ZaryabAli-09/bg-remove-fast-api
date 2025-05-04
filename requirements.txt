@@ -1,6 +1,7 @@
 fastapi
 uvicorn
 pillow
-rembg
 python-multipart
-onnxruntime
+numpy==1.26.4
+onnxruntime==1.16.3
+rembg==2.0.65

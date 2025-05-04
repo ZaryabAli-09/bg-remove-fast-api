@@ -3,6 +3,8 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from rembg import remove
 from PIL import Image
 import io
+import os
+
 
 app = FastAPI(title='Remove Background', description='Introducing our powerful image background removal API! 🔥🖼️ that streamlines the background removal process for professionals across a wide range of industries! Our API leverages advanced machine learning algorithms to quickly and accurately remove the background from any image, making it perfect for graphic designers, photographers, social media managers, and more. With features like support for a variety of image formats, our API is designed to save you time and streamline your workflow. Plus, with 24/7 uptime and fast response times, you can count on our API to be there when you need it. Try it today and experience the power of advanced background removal at your fingertips! 🚀💻📷')
 
@@ -47,3 +49,4 @@ async def exception_handler(request, exc):
         status_code=500,
         content={"message": "Internal server error"},
     )
+ uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 7860)))
