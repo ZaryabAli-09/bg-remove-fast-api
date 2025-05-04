@@ -50,4 +50,4 @@ async def exception_handler(request, exc):
         content={"message": "Internal server error"},
     )
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 7860)))
+    uvicorn.run("app:app", host="0.0.0.0", port=7860, reload=True)
